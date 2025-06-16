@@ -2,13 +2,13 @@
    1. Global Defaults
 ─────────────────────────────────────── */
 :root {
-  --eco-bg: #ffffff;
-  --eco-border: #ddd;
+  --eco-bg: #fff;
+  --eco-border: #01200f;
   --eco-shadow: rgba(0,0,0,0.1);
-  --eco-primary: #2a9d8f;
-  --eco-secondary: #264653;
+  --eco-text: #32746d;
+  --eco-primary: #95d7ae;
   --eco-error: #e76f51;
-  --eco-text: #333;
+  --eco-secondary: #104f55;
   --eco-meta: #666;
   --eco-radius: 8px;
   --eco-transition: all 0.2s ease-out;
@@ -86,7 +86,8 @@
   border-radius: var(--eco-radius);
   box-shadow: 0 4px 12px var(--eco-shadow);
   z-index: 1000000;
-  transition: var(--eco-transition);
+  transition: var(--eco-transition);  
+  overflow-y: scroll;
 }
 #eco-detail:hover {
   transform: translateY(-2px);
@@ -100,36 +101,40 @@
   border: none;
   font-size: 15px;
   font-weight: 600;
-  color: var(--eco-secondary);
+  color: var(--eco-text);
   cursor: pointer;
   padding: 4px 0;
   transition: var(--eco-transition);
 }
 #eco-toggle:hover {
-  color: var(--eco-primary);
+  color: var(--eco-secondary);
 }
 
+#eco-body {
+  height: 300px
+}
+
+
 #gauges {
-  display: flex;
-  justify-content: space-between;
   margin: 8px 0;
 }
+
 .gauge {
+  display: flex;
   flex: 1;
   text-align: center;
   transition: var(--eco-transition);
+  align-items: center;
 }
 .gauge:hover {
   transform: scale(1.05);
 }
-.gauge svg {
-  width: 100%;
-  height: auto;
-}
+
 .g-label {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--eco-text);
   margin-top: 4px;
+  padding-left: 12px
 }
 
 .focus svg circle:nth-child(2) {
@@ -187,4 +192,34 @@
 #compare-toggle {
   margin-right: 6px;
   vertical-align: middle;
+}
+
+/* Info icon Text */
+.info-icon {
+  margin-left: 6px;
+  cursor: pointer;
+  position: relative;
+  font-size: 12px;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: 180px;
+  background-color: var(--eco-primary);
+  color: var(--eco-border);
+  text-align: left;
+  border-radius: 6px;
+  padding: 6px;
+  position: absolute;
+  z-index: 10;
+  top: 20px;
+  right: 120%;
+  transition: opacity 0.3s ease;
+  font-size: 11px;
+}
+
+.info-icon:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }
