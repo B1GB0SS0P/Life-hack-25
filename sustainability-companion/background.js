@@ -7,9 +7,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const key = `score:${msg.upc}`;
     chrome.storage.local.get(key, ({ [key]: cached }) => {
       const now = Date.now();
-      if (cached && now - cached.ts < CACHE_TTL_MS) {
-        sendResponse({ success: true, data: cached.data, fromCache: true });
-      } else {
+      // if (cached && now - cached.ts < CACHE_TTL_MS) {
+      //   sendResponse({ success: true, data: cached.data, fromCache: true });
+      // } else {
+        console.log(`🔄CHECK THIS [Eco] Fetching score for UPC ${msg.upc}...`);
         fetch(`${API_BASE}?upc=${msg.upc}`)
           .then(res => {
             if (!res.ok) throw new Error(`Status ${res.status}`);
@@ -21,7 +22,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             });
           })
           .catch(err => sendResponse({ success: false, error: err.message }));
-      }
+      // }
     });
     return true; // keep channel open
   }
