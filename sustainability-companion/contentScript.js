@@ -117,6 +117,8 @@ function injectGradePill(text) {
   const pill = document.createElement('div');
   pill.id = 'eco-grade-pill';
   pill.textContent = text;
+  pill.style.top = '20px'
+  pill.style.height = '24px';
   document.body.appendChild(pill);
   container.appendChild(pill);
 }
