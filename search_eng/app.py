@@ -25,8 +25,9 @@ def get_assessment_from_openai(api_key, product_id):
         "3. Disposal methods of products: {score / 10}\n\n"
         "After the scores, on new lines, list up to 3 sustainable alternative products. "
         "THEY MUST BEGIN WITH THE WORD ALT:\n"
-        "ALT: Reusable silicone food bags\n"
-        "ALT: Glass containers with bamboo lids"
+        "An example is as listed below:\n"
+        "ALT: <item>\n"
+        "ALT: <item>"
     )
 
     document_url = f"https://www.amazon.com/dp/{product_id}"
@@ -62,15 +63,11 @@ def get_assessment_from_openai(api_key, product_id):
                 "recommendations": [],  # Include empty list in error case
             }
         # --- PARSING LOGIC FOR SCORES AND RECOMMENDATIONS ---
-        material_match = re.search(
-            r"Material.*?:\s*(\d+)\s*/\s*10", assessment_text, re.IGNORECASE
-        )
+        material_match = re.search(r"Material.*?:\s*(\d+)\s*/\s*10", assessment_text, re.IGNORECASE)
         transport_match = re.search(
             r"Transport.*?:\s*(\d+)\s*/\s*10", assessment_text, re.IGNORECASE
         )
-        disposal_match = re.search(
-            r"Disposal.*?:\s*(\d+)\s*/\s*10", assessment_text, re.IGNORECASE
-        )
+        disposal_match = re.search(r"Disposal.*?:\s*(\d+)\s*/\s*10", assessment_text, re.IGNORECASE)
 
         # ================================================================
         # NEW PARSING LOGIC: Extract recommendation lines
@@ -112,6 +109,7 @@ CORS(app)
 
 @app.route("/api/assess", methods=["POST", "OPTIONS"])
 def handle_assessment_request():
+    print("enter")
     if request.method == "OPTIONS":
         return jsonify({"status": "ok"}), 200
     if request.method == "POST":
@@ -120,6 +118,7 @@ def handle_assessment_request():
         if not product_id:
             return jsonify({"error": "upc is missing"}), 400
         api_key = os.getenv("API_KEY")
+        print(api_key)
         if not api_key:
             return jsonify({"error": "API_KEY is not set on the server"}), 500
         result = get_assessment_from_openai(api_key, product_id)
