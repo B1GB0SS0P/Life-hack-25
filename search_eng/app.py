@@ -24,9 +24,7 @@ def get_assessment_from_openai(api_key, product_id):
         "2. Transport of materials: {score / 10}\n"
         "3. Disposal methods of products: {score / 10}\n\n"
         "After the scores, on new lines, list up to 3 sustainable alternative products. "
-        "More sustainable alternative products:\n"
-        "1) ...\n"
-        "2) ..."
+        "THEY MUST BEGIN WITH THE WORD ALT:\n"
         "ALT: Reusable silicone food bags\n"
         "ALT: Glass containers with bamboo lids"
     )
@@ -47,14 +45,12 @@ def get_assessment_from_openai(api_key, product_id):
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
         assessment_text = response.json()["choices"][0]["message"]["content"]
+        print(assessment_text, "CHECK THIS")
 
         if (
             "do not have access" in assessment_text.lower()
             or "cannot access" in assessment_text.lower()
         ):
-            print(
-                f"OpenAI refused to access URL for {product_id}. Sending structured error."
-            )
             return {
                 "upc": product_id,
                 "carbonScore": 0,
@@ -65,8 +61,6 @@ def get_assessment_from_openai(api_key, product_id):
                 "error": "AI model cannot access external websites to assess the product.",
                 "recommendations": [],  # Include empty list in error case
             }
-        print(assessment_text, "DKFJLFDS")
-
         # --- PARSING LOGIC FOR SCORES AND RECOMMENDATIONS ---
         material_match = re.search(
             r"Material.*?:\s*(\d+)\s*/\s*10", assessment_text, re.IGNORECASE
@@ -82,6 +76,7 @@ def get_assessment_from_openai(api_key, product_id):
         # NEW PARSING LOGIC: Extract recommendation lines
         # ================================================================
         recommendations = []
+        print("Assessment text:", assessment_text)
         for line in assessment_text.splitlines():
             if line.strip().upper().startswith("ALT:"):
                 # Clean up the line by removing the "ALT: " prefix
@@ -101,6 +96,7 @@ def get_assessment_from_openai(api_key, product_id):
             "fetchedAt": datetime.now(timezone.utc).isoformat(),
             "recommendations": recommendations,  # Add the new list here
         }
+        print("Formatted data:", json.dumps(formatted_data, indent=2))
 
         return formatted_data
 
