@@ -79,7 +79,7 @@
 ─────────────────────────────────────── */
 #eco-detail {
   position: fixed; top: 120px; right: 20px;
-  width: 280px;
+  width: 300px;
   background: var(--eco-bg);
   padding: 14px;
   border: 1px solid var(--eco-border);
@@ -87,7 +87,7 @@
   box-shadow: 0 4px 12px var(--eco-shadow);
   z-index: 1000000;
   transition: var(--eco-transition);  
-  overflow-y: scroll;
+  
 }
 #eco-detail:hover {
   transform: translateY(-2px);
@@ -101,40 +101,54 @@
   border: none;
   font-size: 15px;
   font-weight: 600;
-  color: var(--eco-text);
+  color: var(--eco-border);
   cursor: pointer;
   padding: 4px 0;
   transition: var(--eco-transition);
 }
 #eco-toggle:hover {
-  color: var(--eco-secondary);
+  color: var(--eco-primary);
 }
 
 #eco-body {
-  height: 300px
+  height: 340px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+#eco-body hidden {
+  overflow-y: none;
 }
 
 
 #gauges {
-  margin: 8px 0;
+  margin: 8px 0px;
 }
 
 .gauge {
+  margin-left: 8px;
   display: flex;
   flex: 1;
   text-align: center;
   transition: var(--eco-transition);
   align-items: center;
 }
+
+.gauge .fill {
+  transition: stroke-dashoffset 1s ease-out;
+}
+
 .gauge:hover {
   transform: scale(1.05);
 }
 
 .g-label {
   font-size: 14px;
-  color: var(--eco-text);
-  margin-top: 4px;
-  padding-left: 12px
+  font-weight: 500;
+  color: var(--eco-border);
+  padding-left: 12px;
+  position: relative;
+  top: -5px;
 }
 
 .focus svg circle:nth-child(2) {
