@@ -166,9 +166,21 @@ function renderDetailPanel(data, focus) {
     body.hidden = !body.hidden;
     document.getElementById('eco-toggle').textContent =
       (body.hidden ? 'Show' : 'Hide') + ' Eco-Scores ' + (body.hidden ? '▼' : '▲');
+    if (!body.hidden) {
+      animateGauges();
+    }
+    else {
+      const fills = body.querySelectorAll('.gauge .fill');
+      fills.forEach(circle => {
+        const circumference = circle.getAttribute('stroke-dasharray');
+        circle.style.strokeDashoffset = circumference;
+      });
+    }
   });
 
   injectInfoIcon('Carbon', 'The Scoring system involves a mixture of Carbon footprint and some other stuff')
+  injectInfoIcon('Material', 'The Scoring system involves a mixture of material usage and some other stuff')
+  injectInfoIcon('End', 'The Scoring system involves a mixture of death and some other stuff')
 }
 
 // Render individual gauge
@@ -181,16 +193,30 @@ function gaugeHTML(name, value, highlight) {
     <div class="gauge ${colorClass}">
       <svg width="100" height="110">
         <circle cx="50" cy="50" r="${r}" stroke="#eee" stroke-width="10" fill="none"/>
-        <circle cx="50" cy="50" r="${r}" stroke="${highlight ? '#2a9d8f' : '#264653'}" stroke-width="10"
+        <circle cx="50" cy="50" r="${r}" stroke="${highlight ? '#32746d' : '#104f55'}" stroke-width="10" class="fill"
           fill="none"
           stroke-dasharray="${circumference}"
-          stroke-dashoffset="${offset}"
+          stroke-dashoffset="${circumference}"
+          data-offset="${offset}"
           transform="rotate(-90 50 50)"/>
+        
+        <text x="50" y="55" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#333">
+          ${value}%
+        </text>
       </svg>
       <div class="g-label">
         ${name.charAt(0).toUpperCase() + name.slice(1)}: ${value}/100
       </div>
     </div>`;
+}
+
+function animateGauges() {
+  document.querySelectorAll('.gauge .fill').forEach(circle => {
+    const offset = circle.getAttribute('data-offset');
+    requestAnimationFrame(() => {
+      circle.style.strokeDashoffset = offset;
+    });
+  });
 }
 
 // Inject info to the texts
@@ -204,7 +230,7 @@ function injectInfoIcon(labelText, tooltipText) {
 
       const icon = document.createElement('span');
       icon.className = 'info-icon';
-      icon.textContent = 'ℹ️';
+      icon.textContent = '🛈';
 
       const tooltip = document.createElement('span');
       tooltip.className = 'tooltip-text';
