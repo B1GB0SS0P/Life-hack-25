@@ -177,7 +177,7 @@ function gaugeHTML(name, value, highlight) {
   const offset = circumference * (1 - value/100);
   return `
     <div class="gauge ${colorClass}" title="${name} score: ${value}/100">
-      <svg width="100" height="60">
+      <svg width="100" height="80">
         <circle cx="50" cy="50" r="${r}" stroke="#eee" stroke-width="10" fill="none"/>
         <circle cx="50" cy="50" r="${r}" stroke="${highlight ? '#2a9d8f' : '#264653'}" stroke-width="10"
           fill="none"
