@@ -81,7 +81,7 @@ function waitForElement(selector, timeout = 10000) {
       // 6) Compute grade & inject UI
       const { carbonScore, materialScore, endOfLifeScore } = resp.data;
       const avg = (carbonScore + materialScore + endOfLifeScore) / 3;
-      updateGradePill(computeGrade(avg));
+      updateGradePill(`Eco Score: ${computeGrade(avg)}`);
 
       renderDetailPanel(resp.data, preferredMetric);
       findAndRenderAlternatives(resp.data, preferredMetric);
@@ -167,6 +167,8 @@ function renderDetailPanel(data, focus) {
     document.getElementById('eco-toggle').textContent =
       (body.hidden ? 'Show' : 'Hide') + ' Eco-Scores ' + (body.hidden ? '▼' : '▲');
   });
+
+  injectInfoIcon('Carbon', 'The Scoring system involves a mixture of Carbon footprint and some other stuff')
 }
 
 // Render individual gauge
@@ -176,8 +178,8 @@ function gaugeHTML(name, value, highlight) {
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - value/100);
   return `
-    <div class="gauge ${colorClass}" title="${name} score: ${value}/100">
-      <svg width="100" height="80">
+    <div class="gauge ${colorClass}">
+      <svg width="100" height="110">
         <circle cx="50" cy="50" r="${r}" stroke="#eee" stroke-width="10" fill="none"/>
         <circle cx="50" cy="50" r="${r}" stroke="${highlight ? '#2a9d8f' : '#264653'}" stroke-width="10"
           fill="none"
@@ -186,10 +188,34 @@ function gaugeHTML(name, value, highlight) {
           transform="rotate(-90 50 50)"/>
       </svg>
       <div class="g-label">
-        ${name.charAt(0).toUpperCase() + name.slice(1)}: ${value}
+        ${name.charAt(0).toUpperCase() + name.slice(1)}: ${value}/100
       </div>
     </div>`;
 }
+
+// Inject info to the texts
+function injectInfoIcon(labelText, tooltipText) {
+  const labels = document.querySelectorAll('.g-label');
+
+  labels.forEach(label => {
+    if (label.textContent.includes(labelText)) {
+      // Prevent duplicates
+      if (label.querySelector('.info-icon')) return;
+
+      const icon = document.createElement('span');
+      icon.className = 'info-icon';
+      icon.textContent = 'ℹ️';
+
+      const tooltip = document.createElement('span');
+      tooltip.className = 'tooltip-text';
+      tooltip.textContent = tooltipText;
+
+      icon.appendChild(tooltip);
+      label.appendChild(icon);
+    }
+  });
+}
+
 
 // Alternatives section
 async function findAndRenderAlternatives(mainData, focus) {
