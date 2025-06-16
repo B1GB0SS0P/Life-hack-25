@@ -23,10 +23,10 @@ function waitForElement(selector, timeout = 10000) {
 }
 
 // Entry point
-(async function() {
+;(async function() {
   console.log('♻️ [Eco] Starting contentScript');
 
-  // 1) Wait for the page’s main container (so we don’t fire too early)
+  // 1) Wait for the <body> to exist
   try {
     await waitForElement('body');
     console.log('♻️ [Eco] Body is ready');
@@ -62,7 +62,7 @@ function waitForElement(selector, timeout = 10000) {
     return;
   }
 
-  // 4) Show skeleton & grade placeholder
+  // 4) Show skeleton & placeholder grade
   injectSkeleton();
   injectGradePill('…');
 
@@ -79,7 +79,7 @@ function waitForElement(selector, timeout = 10000) {
       console.log('✅ [Eco] Score data:', resp.data);
 
       // 6) Compute grade & inject UI
-      const { carbonScore, materialScore, endOfLifeScore, source, fetchedAt } = resp.data;
+      const { carbonScore, materialScore, endOfLifeScore } = resp.data;
       const avg = (carbonScore + materialScore + endOfLifeScore) / 3;
       updateGradePill(computeGrade(avg));
 
@@ -88,6 +88,7 @@ function waitForElement(selector, timeout = 10000) {
     }
   );
 })();
+
 
 // ——— UI Helpers —————————————————————————————————————————
 
@@ -102,34 +103,21 @@ function injectSkeleton() {
       <div class="skel-line med"></div>
       <div class="skel-line long"></div>
     </div>`;
-  Object.assign(sk.style, {
-    position: 'fixed', top: '80px', right: '20px',
-    background: '#fff', padding: '8px',
-    border: '1px solid #ccc', borderRadius: '6px',
-    zIndex: 999999
-  });
   document.body.appendChild(sk);
 }
 function removeSkeleton() {
-  const sk = document.getElementById('eco-skel');
-  if (sk) sk.remove();
+  document.getElementById('eco-skel')?.remove();
 }
 
 // Grade pill overlay on image
 function injectGradePill(text) {
   if (document.getElementById('eco-grade-pill')) return;
   const container = document.querySelector('#imgTagWrapperId') || document.body;
+  container.style.position = 'relative';
   const pill = document.createElement('div');
   pill.id = 'eco-grade-pill';
   pill.textContent = text;
-  Object.assign(pill.style, {
-    position: 'absolute',
-    top: '8px', right: '8px',
-    background: '#2a9d8f', color: '#fff',
-    padding: '2px 6px', fontWeight: 'bold',
-    borderRadius: '4px', zIndex: 999999
-  });
-  container.style.position = 'relative';
+  document.body.appendChild(pill);
   container.appendChild(pill);
 }
 function updateGradePill(letter) {
@@ -137,6 +125,7 @@ function updateGradePill(letter) {
   if (pill) pill.textContent = letter;
 }
 
+// Compute A–F grade
 function computeGrade(val) {
   if (val >= 80) return 'A';
   if (val >= 60) return 'B';
@@ -153,7 +142,7 @@ function renderDetailPanel(data, focus) {
   panel.innerHTML = `
     <button id="eco-toggle">Show Eco-Scores ▼</button>
     <div id="eco-body" hidden>
-      <div class="gauges">
+      <div id="gauges" class="gauges">
         ${['carbon','material','endOfLife'].map(key =>
           gaugeHTML(key, data[`${key}Score`], `${key}Score` === focus)
         ).join('')}
@@ -162,40 +151,40 @@ function renderDetailPanel(data, focus) {
         Source: ${data.source} • Updated: ${new Date(data.fetchedAt).toLocaleDateString()}
       </small>
       <div>
-        <label><input type="checkbox" id="compare-toggle"> Compare alternatives</label>
+        <label>
+          <input type="checkbox" id="compare-toggle"> Compare alternatives
+        </label>
       </div>
       <div id="eco-alts"></div>
     </div>`;
-  Object.assign(panel.style, {
-    position: 'fixed', top: '120px', right: '20px',
-    background: '#fff', padding: '12px', width: '260px',
-    border: '1px solid #ccc', borderRadius: '6px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-    fontFamily: 'sans-serif', zIndex: 999999
-  });
   document.body.appendChild(panel);
 
-  document.getElementById('eco-toggle').onclick = () => {
+  document.getElementById('eco-toggle').addEventListener('click', () => {
     const body = document.getElementById('eco-body');
     body.hidden = !body.hidden;
     document.getElementById('eco-toggle').textContent =
       (body.hidden ? 'Show' : 'Hide') + ' Eco-Scores ' + (body.hidden ? '▼' : '▲');
-  };
+  });
 }
 
+// Render individual gauge
 function gaugeHTML(name, value, highlight) {
-  const color = highlight ? '#2a9d8f' : '#264653';
-  const r = 40, c = 2 * Math.PI * r, o = c * (1 - value/100);
+  const colorClass = highlight ? 'focus' : '';
+  const r = 40;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - value/100);
   return `
-    <div class="gauge ${highlight?'focus':''}" title="${name} : ${value}/100">
+    <div class="gauge ${colorClass}" title="${name} score: ${value}/100">
       <svg width="100" height="60">
         <circle cx="50" cy="50" r="${r}" stroke="#eee" stroke-width="10" fill="none"/>
-        <circle cx="50" cy="50" r="${r}" stroke="${color}" stroke-width="10"
-          fill="none" stroke-dasharray="${c}" stroke-dashoffset="${o}"
+        <circle cx="50" cy="50" r="${r}" stroke="${highlight ? '#2a9d8f' : '#264653'}" stroke-width="10"
+          fill="none"
+          stroke-dasharray="${circumference}"
+          stroke-dashoffset="${offset}"
           transform="rotate(-90 50 50)"/>
       </svg>
-      <div style="font-size:12px; text-align:center;">
-        ${name.charAt(0).toUpperCase()+name.slice(1)}: ${value}
+      <div class="g-label">
+        ${name.charAt(0).toUpperCase() + name.slice(1)}: ${value}
       </div>
     </div>`;
 }
@@ -214,7 +203,7 @@ async function findAndRenderAlternatives(mainData, focus) {
   for (let asin of altAsins) {
     const wrap = document.createElement('div');
     wrap.className = 'alt-skel';
-    wrap.innerHTML = `<div style="background:#ddd;height:12px;width:40px;margin:6px 0;"></div>`;
+    wrap.innerHTML = `<div class="skel-line short"></div>`;
     container.appendChild(wrap);
 
     chrome.runtime.sendMessage({ action: 'fetchScore', upc: asin }, resp => {
@@ -226,14 +215,16 @@ async function findAndRenderAlternatives(mainData, focus) {
       const delta = Math.round(((mainData[focus] - d[focus]) / mainData[focus]) * 100);
       wrap.className = 'alt-item';
       wrap.innerHTML = `
-        <div><strong>${delta>=0?'-':''}${delta}%</strong> vs this</div>
+        <div><strong>${delta >= 0 ? '-' : ''}${delta}%</strong> vs this</div>
         <button class="swap-btn" data-asin="${asin}">Swap</button>`;
       wrap.querySelector('.swap-btn').style.display = 'none';
     });
   }
 
-  document.getElementById('compare-toggle').onchange = e => {
+  document.getElementById('compare-toggle').addEventListener('change', e => {
     document.querySelectorAll('.alt-item .swap-btn')
-      .forEach(btn => { btn.style.display = e.target.checked ? 'inline-block' : 'none'; });
-  };
+      .forEach(btn => {
+        btn.style.display = e.target.checked ? 'inline-block' : 'none';
+      });
+  });
 }

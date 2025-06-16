@@ -1,117 +1,190 @@
-/* ===========================
-   Skeleton Loader
-   =========================== */
+/* ───────────────────────────────────────
+   1. Global Defaults
+─────────────────────────────────────── */
+:root {
+  --eco-bg: #ffffff;
+  --eco-border: #ddd;
+  --eco-shadow: rgba(0,0,0,0.1);
+  --eco-primary: #2a9d8f;
+  --eco-secondary: #264653;
+  --eco-error: #e76f51;
+  --eco-text: #333;
+  --eco-meta: #666;
+  --eco-radius: 8px;
+  --eco-transition: all 0.2s ease-out;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+/* ───────────────────────────────────────
+   2. Skeleton Loader
+─────────────────────────────────────── */
 #eco-skel {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  background: #fff;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  position: fixed; top: 80px; right: 20px;
+  background: var(--eco-bg);
+  padding: 10px;
+  border: 1px solid var(--eco-border);
+  border-radius: var(--eco-radius);
+  box-shadow: 0 2px 6px var(--eco-shadow);
   z-index: 1000000;
+  opacity: 0.9;
 }
 .skel-panel .skel-line {
-  background: #ddd;
-  height: 12px;
+  background: #eee;
+  height: 10px;
   margin: 6px 0;
   border-radius: 4px;
+  animation: pulse 1.5s infinite;
 }
 .skel-line.short { width: 40px; }
 .skel-line.med   { width: 80px; }
 .skel-line.long  { width: 120px; }
 
-/* ===========================
-   Eco-Grade Pill
-   =========================== */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ───────────────────────────────────────
+   3. Eco-Grade Pill
+─────────────────────────────────────── */
 #eco-grade-pill {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: linear-gradient(135deg, #2a9d8f 0%, #264653 100%);
+  top: 8px; left: 8px;
+  background: linear-gradient(135deg, var(--eco-primary), var(--eco-secondary));
   color: #fff;
   font-size: 14px;
-  font-weight: 600;
-  line-height: 1;
+  font-weight: 700;
   padding: 4px 10px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 2px 6px var(--eco-shadow);
   text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-  z-index: 1000001;
+  transition: var(--eco-transition);
   pointer-events: none;
-  font-family: 'Segoe UI', Tahoma, sans-serif;
+  z-index: 1000001;
 }
-/* Ensure the image container is relative for positioning the pill */
+
+/* Ensure container can position children */
 #imgTagWrapperId,
 #imgTagWrapperId img,
 #imgTagWrapperId > div {
   position: relative !important;
 }
 
-/* ===========================
-   Detail Panel
-   =========================== */
+/* ───────────────────────────────────────
+   4. Detail Panel
+─────────────────────────────────────── */
 #eco-detail {
-  position: fixed;
-  top: 120px;
-  right: 20px;
-  width: 260px;
-  background: #fff;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  font-family: sans-serif;
+  position: fixed; top: 120px; right: 20px;
+  width: 280px;
+  background: var(--eco-bg);
+  padding: 14px;
+  border: 1px solid var(--eco-border);
+  border-radius: var(--eco-radius);
+  box-shadow: 0 4px 12px var(--eco-shadow);
   z-index: 1000000;
+  transition: var(--eco-transition);
 }
-#eco-detail button {
+#eco-detail:hover {
+  transform: translateY(-2px);
+}
+
+#eco-toggle {
+  display: block;
+  width: 100%;
+  text-align: left;
   background: none;
   border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--eco-secondary);
   cursor: pointer;
-  font-size: 14px;
-  margin-bottom: 8px;
-  color: #264653;
+  padding: 4px 0;
+  transition: var(--eco-transition);
 }
+#eco-toggle:hover {
+  color: var(--eco-primary);
+}
+
 #gauges {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin: 8px 0;
 }
 .gauge {
+  flex: 1;
   text-align: center;
+  transition: var(--eco-transition);
+}
+.gauge:hover {
+  transform: scale(1.05);
+}
+.gauge svg {
+  width: 100%;
+  height: auto;
 }
 .g-label {
   font-size: 12px;
+  color: var(--eco-text);
   margin-top: 4px;
 }
+
 .focus svg circle:nth-child(2) {
   stroke-width: 12px;
 }
+
+/* Meta info */
 .meta {
   font-size: 10px;
-  color: #666;
-  margin-top: 8px;
+  color: var(--eco-meta);
+  margin-top: 6px;
 }
 
-/* ===========================
-   Alternatives Section
-   =========================== */
+/* ───────────────────────────────────────
+   5. Alternatives
+─────────────────────────────────────── */
 #eco-alts {
   margin-top: 12px;
 }
-.alt-skel,
+#eco-alts h5 {
+  margin: 8px 0 4px;
+  font-size: 14px;
+  color: var(--eco-secondary);
+}
 .alt-item {
-  margin: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.alt-item:last-child {
+  border-bottom: none;
+}
+.alt-item div {
+  font-size: 13px;
+  color: var(--eco-text);
 }
 .swap-btn {
-  display: none;
-  background: #e76f51;
+  background: var(--eco-error);
   color: #fff;
   border: none;
   padding: 4px 8px;
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  margin-top: 4px;
+  opacity: 0.9;
+  transition: var(--eco-transition);
+}
+.swap-btn:hover {
+  opacity: 1;
+}
+
+/* Compare toggle */
+#compare-toggle {
+  margin-right: 6px;
+  vertical-align: middle;
 }
