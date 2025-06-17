@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Sustainability Companion",
+  "name": "Sustainable Bob",
   "version": "1.0.0",
   "description": "Shows environmental scores on product pages with enhanced UI",
   "permissions": ["storage", "activeTab", "scripting"],
