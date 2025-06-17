@@ -46,11 +46,14 @@
     }
 
     li {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       padding-left: 15px;
       position: relative;
       font-size: 15px;
       color: #444;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     li::before {
@@ -58,14 +61,12 @@
       color: #38a169;
       position: absolute;
       left: 0;
-      top: 0;
+      top: 5px;
       font-weight: bold;
     }
-
-    li span.percentage {
-      font-weight: 700;
-      color: #2f855a;
-      margin-left: 6px;
+    
+    .metric-name {
+        flex-grow: 1;
     }
 
     li span.note {
@@ -76,6 +77,34 @@
       margin-top: 2px;
       font-size: 13px;
     }
+    
+    .weight-input {
+        width: 60px;
+        padding: 4px;
+        font-size: 14px;
+        text-align: right;
+        border: 1px solid #cbd5e0;
+        border-radius: 4px;
+    }
+
+    .input-suffix {
+        margin-left: 2px;
+        font-weight: 600;
+        color: #2f855a;
+    }
+
+    .validation-message {
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: -15px;
+        margin-bottom: 15px;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    .validation-error { color: #c53030; background-color: #fed7d7; }
+    .validation-success { color: #2f855a; background-color: #c6f6d5; }
+
 
     label {
       display: block;
@@ -151,80 +180,102 @@
 
   <section>
     <h3>Environmental Score</h3>
+     <div id="env-validation" class="validation-message"></div>
     <ul>
-      <li>Greenhouse Gas Emissions <span class="percentage">[35%]</span>
-        <span class="note">Total GHG Emissions</span>
+      <li>
+        <span class="metric-name">Greenhouse Gas Emissions<span class="note">Total GHG Emissions</span></span>
+        <div><input type="number" id="ghg" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Material Sustainability <span class="percentage">[15%]</span>
-        <span class="note">How sustainable each material is</span>
+      <li>
+        <span class="metric-name">Material Sustainability<span class="note">How sustainable each material is</span></span>
+        <div><input type="number" id="material" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Water Usage <span class="percentage">[10%]</span>
-        <span class="note">Total amount of water used to produce the product</span>
+      <li>
+        <span class="metric-name">Water Usage<span class="note">Total amount of water used to produce the product</span></span>
+        <div><input type="number" id="water" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Packaging Impact <span class="percentage">[20%]</span>
-          <span class="note">Total sustainability of the packaging</span>
+      <li>
+        <span class="metric-name">Packaging Impact<span class="note">Total sustainability of the packaging</span></span>
+        <div><input type="number" id="packaging" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>End of Life Disposal <span class="percentage">[20%]</span>
-          <span class="note">How the product is disposed</span>
+      <li>
+        <span class="metric-name">End of Life Disposal<span class="note">How the product is disposed</span></span>
+        <div><input type="number" id="eol" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
     </ul>
   </section>
 
   <section>
     <h3>Social Score</h3>
+    <div id="social-validation" class="validation-message"></div>
     <ul>
-      <li>Fair Labour <span class="percentage">[10%]</span>
-        <span class="note">How many workers earn living wage</span>
+      <li>
+          <span class="metric-name">Fair Labour<span class="note">How many workers earn living wage</span></span>
+          <div><input type="number" id="labour" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Worker Safety <span class="percentage">[10%]</span>
-        <span class="note">Number of Incidents / Health Policies</span>
+      <li>
+          <span class="metric-name">Worker Safety<span class="note">Number of Incidents / Health Policies</span></span>
+          <div><input type="number" id="safety" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Fair Trade <span class="percentage">[20%]</span>
-        <span class="note">Is product certified</span>
+      <li>
+          <span class="metric-name">Fair Trade<span class="note">Is product certified</span></span>
+          <div><input type="number" id="trade" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Local Sourcing <span class="percentage">[20%]</span>
-        <span class="note">Amount of Materials sourced locally</span>
+      <li>
+          <span class="metric-name">Local Sourcing<span class="note">Amount of Materials sourced locally</span></span>
+          <div><input type="number" id="sourcing" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Community Impact <span class="percentage">[20%]</span>
-        <span class="note">Number of Donations / community projects per product</span>
+      <li>
+          <span class="metric-name">Community Impact<span class="note">Number of Donations / community projects per product</span></span>
+          <div><input type="number" id="community" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>User Health and Safety <span class="percentage">[20%]</span>
-        <span class="note">Is Product free of harmful side effects</span>
+      <li>
+          <span class="metric-name">User Health and Safety<span class="note">Is Product free of harmful side effects</span></span>
+          <div><input type="number" id="health" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
     </ul>
   </section>
 
   <section>
     <h3>Governance Score</h3>
+    <div id="gov-validation" class="validation-message"></div>
     <ul>
-      <li>Affordability / Value <span class="percentage">[20%]</span>
-        <span class="note">Cost per use / cost over lifespan</span>
+      <li>
+          <span class="metric-name">Affordability / Value<span class="note">Cost per use / cost over lifespan</span></span>
+          <div><input type="number" id="affordability" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Circular Economy Fit <span class="percentage">[25%]</span>
-        <span class="note">% of product/materials reusable/remanufacturable</span>
+      <li>
+          <span class="metric-name">Circular Economy Fit<span class="note">% of product/materials reusable/remanufacturable</span></span>
+          <div><input type="number" id="circular" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Local Economic Impact <span class="percentage">[30%]</span>
-        <span class="note">Local job creation or SME partnerships</span>
+      <li>
+          <span class="metric-name">Local Economic Impact<span class="note">Local job creation or SME partnerships</span></span>
+          <div><input type="number" id="local" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Supply Chain Resilience <span class="percentage">[15%]</span>
-        <span class="note">Supplier diversification</span>
+      <li>
+          <span class="metric-name">Supply Chain Resilience<span class="note">Supplier diversification</span></span>
+          <div><input type="number" id="resilience" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
-      <li>Innovation / R&D <span class="percentage">[10%]</span>
-        <span class="note">Investment in sustainable design or tech</span>
+      <li>
+          <span class="metric-name">Innovation / R&D<span class="note">Investment in sustainable design or tech</span></span>
+          <div><input type="number" id="innovation" class="weight-input" min="0" max="100"><span class="input-suffix">%</span></div>
       </li>
     </ul>
   </section>
+  
+  <section>
+    <h3>User Preferences</h3>
+      <label for="metric-select">
+        Preferred metric to display:
+        <select id="metric-select" name="metric-select">
+          <option value="environmentalScore">Environmental</option>
+          <option value="socialScore">Social</option>
+          <option value="governanceScore">Governance</option>
+        </select>
+      </label>
+  </section>
 
-  <label for="metric-select">
-    Preferred metric:
-    <select id="metric-select" name="metric-select">
-      <option value="environmentalScore">Environmental</option>
-      <option value="socialScore">Social</option>
-      <option value="governanceScore">Governance</option>
-    </select>
-  </label>
-
-  <button id="save-btn">Save</button>
+  <button id="save-btn">Save Preferences</button>
 
   <script src="options.js"></script>
 </body>
