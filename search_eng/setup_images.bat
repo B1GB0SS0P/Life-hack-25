@@ -1,6 +1,6 @@
 @echo off
 set ZIP_FILE=searxng.zip
-set DEST_FOLDER=searxng
+set DEST_FOLDER=.
 
 REM Create destination folder if it doesn't exist
 if not exist "%DEST_FOLDER%" (
