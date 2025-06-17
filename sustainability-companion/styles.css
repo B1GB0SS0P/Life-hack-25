@@ -116,10 +116,19 @@
   overflow-y: scroll;
 }
 
+#eco-body::-webkit-scrollbar {
+  display: none;            /* Hide scrollbar on Chrome, Safari, Opera */
+}
+
 #eco-body hidden {
   overflow-y: none;
 }
 
+.graph {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 #gauges {
   margin: 8px 0px;
@@ -143,10 +152,10 @@
 }
 
 .g-label {
+  padding-left: 20px;
   font-size: 12px;
   font-weight: 500;
   color: var(--eco-border);
-  padding-left: 12px;
   position: relative;
   top: -5px;
 }
@@ -210,10 +219,10 @@
 
 /* Info icon Text */
 .info-icon {
-  margin-left: 6px;
   cursor: pointer;
   position: relative;
   font-size: 12px;
+  top: -5px;
 }
 
 .tooltip-text {

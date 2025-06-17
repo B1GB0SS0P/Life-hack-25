@@ -191,22 +191,24 @@ function gaugeHTML(name, value, highlight) {
   const circumference = 2 * Math.PI * r;
   const offset = circumference * (1 - value/100);
   return `
-    <div class="gauge ${colorClass}">
-      <svg width="100" height="110">
-        <circle cx="50" cy="50" r="${r}" stroke="#eee" stroke-width="10" fill="none"/>
-        <circle cx="50" cy="50" r="${r}" stroke="${highlight ? '#32746d' : '#104f55'}" stroke-width="10" class="fill"
-          fill="none"
-          stroke-dasharray="${circumference}"
-          stroke-dashoffset="${circumference}"
-          data-offset="${offset}"
-          transform="rotate(-90 50 50)"/>
-        
-        <text x="50" y="55" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#333">
-          ${value}%
-        </text>
-      </svg>
-      <div class="g-label">
-        ${name.charAt(0).toUpperCase() + name.slice(1)} Score
+    <div class="graph">
+      <div class="gauge ${colorClass}">
+        <svg width="100" height="110">
+          <circle cx="50" cy="50" r="${r}" stroke="#eee" stroke-width="10" fill="none"/>
+          <circle cx="50" cy="50" r="${r}" stroke="${highlight ? '#32746d' : '#104f55'}" stroke-width="10" class="fill"
+            fill="none"
+            stroke-dasharray="${circumference}"
+            stroke-dashoffset="${circumference}"
+            data-offset="${offset}"
+            transform="rotate(-90 50 50)"/>
+          
+          <text x="50" y="55" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#333">
+            ${value}%
+          </text>
+        </svg>
+        <div class="g-label">
+          ${name.charAt(0).toUpperCase() + name.slice(1)} Score
+        </div>
       </div>
     </div>`;
 }
@@ -222,7 +224,7 @@ function animateGauges() {
 
 // Inject info to the texts
 function injectInfoIcon(labelText, tooltipText) {
-  const labels = document.querySelectorAll('.g-label');
+  const labels = document.querySelectorAll('.graph');
 
   labels.forEach(label => {
     if (label.textContent.includes(labelText)) {
@@ -246,27 +248,36 @@ function injectInfoIcon(labelText, tooltipText) {
 
 // Alternatives section
 async function findAndRenderAlternatives(mainData, avg) {
-  console.log(mainData)
+  console.log(avg)
 
   const container = document.getElementById('eco-alts');
   container.innerHTML = '<h5>Recommendations</h5>';
 
   for (let data of mainData) {
     const wrap = document.createElement('div');
-    wrap.className = 'alt-skel';
-    wrap.innerHTML = `<div class="skel-line short"></div>`;
-    container.appendChild(wrap);
-    const delta = Math.round((data['product_score'] - avg / avg) * 100);
     wrap.className = 'alt-item';
+
+    const delta = Math.round(((data['product_score'] - avg) / avg) * 100);
+
     wrap.innerHTML = `
-      <div>${data['product_name']}: <strong>${delta >= 0 ? '-' : ''}${delta}%</strong> vs this</div>
-      <button class="swap-btn" >View Reason</button>
-      <div class="reason-text" style="display: none; margin-top: 5px; color: #555;">${data['reco_reason']}</div>`;
+      <div class="summary-row">
+        <div>${data['product_name']} is <strong>${Math.abs(delta)}% ${delta <= 0 ? 'less' : 'more'}</strong> Sustainable</div>
+        <div class="button-wrap">
+          <button class="swap-btn" style="margin: 5px 0;">View Reason</button>
+          <div class="reason-text" style="display: none; margin-top: 5px; padding: 8px; background: #f9f9f9; border-left: 3px solid #32746d; color: #333;">
+            ${data['reco_reason']}
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(wrap);
   }
+
 
   container.addEventListener('click', e => {
     if (e.target.classList.contains('swap-btn')) {
-      const reasonDiv = e.target.nextElementSibling;
+      const reasonDiv = e.target.closest('.alt-item').querySelector('.reason-text');
       reasonDiv.style.display = reasonDiv.style.display === 'none' ? 'block' : 'none';
     }
   });
