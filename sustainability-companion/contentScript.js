@@ -64,7 +64,7 @@ function waitForElement(selector, timeout = 10000) {
 
   // 4) Show skeleton & placeholder grade
   injectSkeleton();
-  injectGradePill('…');
+  
 
   // 5) Fetch the scores
   chrome.runtime.sendMessage(
@@ -81,9 +81,8 @@ function waitForElement(selector, timeout = 10000) {
       // 6) Compute grade & inject UI
       const { environmentalScore, socialScore, governanceScore, recommendations } = resp.data;
       const avg = (environmentalScore + socialScore + governanceScore) / 3;
-      updateGradePill(`Eco Score: ${computeGrade(avg)}`);
       
-      renderDetailPanel(resp.data, preferredMetric);
+      renderDetailPanel(resp.data, preferredMetric, avg)
       findAndRenderAlternatives(recommendations, avg);
     }
   );
@@ -112,19 +111,41 @@ function removeSkeleton() {
 // Grade pill overlay on image
 function injectGradePill(text) {
   if (document.getElementById('eco-grade-pill')) return;
-  const container = document.querySelector('#imgTagWrapperId') || document.body;
-  container.style.position = 'relative';
+  
+  const container = document.querySelector('#eco-detail') || document.body;
+
   const pill = document.createElement('div');
   pill.id = 'eco-grade-pill';
   pill.textContent = text;
-  pill.style.top = '20px'
-  pill.style.height = '24px';
-  document.body.appendChild(pill);
-  container.appendChild(pill);
+
+  pill.style.position = 'absolute';  // position relative to container
+  pill.style.top = '12px';
+  pill.style.left = '160px';
+  pill.style.textAlign = 'center';
+  pill.style.justifyContent = 'center'
+  pill.style.display = 'flex'
+  pill.style.whiteSpace = 'nowrap'
+
+  container.appendChild(pill);  // append only once here, inside eco-detail
 }
+
 function updateGradePill(letter) {
   const pill = document.getElementById('eco-grade-pill');
-  if (pill) pill.textContent = letter;
+  const colorMap = {
+    A: '#95d7ae',        // light green
+    B: '#f9a825',        // light orange
+    C: '#fff176',        // light yellow
+    D: '#e53935',        // red
+    F: '#000000',        // black
+  };
+  if (!pill) return;
+  const trimmed = letter.trim();
+  const lastChar = trimmed.slice(-1).toUpperCase();
+  const colored = colorMap[lastChar];
+
+  const baseText = trimmed.slice(0, -1);
+  
+  pill.innerHTML = `${baseText}&nbsp;<span style="color: ${colored}; font-size: 20px"> ${lastChar}</span>`;
 }
 
 // Compute A–F grade
@@ -137,7 +158,7 @@ function computeGrade(val) {
 }
 
 // Main detail panel
-function renderDetailPanel(data, focus) {
+function renderDetailPanel(data, focus, avg) {
   if (document.getElementById('eco-detail')) return;
   const panel = document.createElement('div');
   panel.id = 'eco-detail';
@@ -182,6 +203,9 @@ function renderDetailPanel(data, focus) {
   injectInfoIcon('Environment', 'The Scoring system involves a mixture of Carbon footprint and some other stuff')
   injectInfoIcon('Social', 'The Scoring system involves a mixture of material usage and some other stuff')
   injectInfoIcon('Governance', 'The Scoring system involves a mixture of death and some other stuff')
+  injectGradePill('…')
+  updateGradePill(`Eco Score: ${computeGrade(avg)}`)
+
 }
 
 // Render individual gauge

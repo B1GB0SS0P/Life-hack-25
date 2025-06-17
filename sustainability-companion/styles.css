@@ -52,9 +52,10 @@
    3. Eco-Grade Pill
 ─────────────────────────────────────── */
 #eco-grade-pill {
+  width: 120px;
   position: absolute;
-  top: 8px; left: 8px;
-  background: linear-gradient(135deg, var(--eco-primary), var(--eco-secondary));
+  left: 300px;
+  background: var(--eco-secondary);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
