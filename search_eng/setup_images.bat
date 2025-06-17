@@ -1,0 +1,1 @@
+docker load < custom_searxng.tar

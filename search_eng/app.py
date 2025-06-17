@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
+from get_documents import get_documents
 
 def get_assessment_from_openai(api_key, product_id):
     """
@@ -46,34 +46,37 @@ def get_assessment_from_openai(api_key, product_id):
         'Example: ALT: [{"product_name": "<item>", "product_score": 90, "reco_reason": "<reason>"}]'
     )
 
+    urls, titles, text_docs = get_documents(product_id, top_n = 2)
+    urls_rec, titles_rec, text_docs_rec = get_documents(titles[0], top_n = 2, get_recommendations = True)
     document_url = f"https://www.amazon.com/dp/{product_id}"
-    query = f"Assess the product at the following URL: {document_url}"
-    query = """KEMOVE K98SE Mechanical Gaming Keyboard, 98 Keys LED Backlit Programmable, 96% Wired Computer Keyboard with Double Sound Dampening Foam, Pre-lubed Red Switch
-Brand: KEMOVE
-4.2 out of 5 stars    144 ratings
-S$93.81S$93.81
+    print(f"{"\n".join(text_docs)}")
+    query = f"{"\n".join(text_docs)}\nSource titles: {"\n".join(titles)}\nRecommendation info: {"\n".join(text_docs_rec)}\nGiven the above text, assess the product."
+#     query = """KEMOVE K98SE Mechanical Gaming Keyboard, 98 Keys LED Backlit Programmable, 96% Wired Computer Keyboard with Double Sound Dampening Foam, Pre-lubed Red Switch
+# Brand: KEMOVE
+# 4.2 out of 5 stars    144 ratings
+# S$93.81S$93.81
 
-Secure transaction
+# Secure transaction
 
-Returns Policy
-Brand\tKEMOVE
-Compatible devices\tPC
-Connectivity technology\tUSB-C
-Keyboard description\tMechanical
-Recommended product uses\tGaming
-Special features\tBacklit
-Colour\tRed
-Number of keys\t98
-Keyboard backlight colour support\tSingle Color
-Style\tModern
+# Returns Policy
+# Brand\tKEMOVE
+# Compatible devices\tPC
+# Connectivity technology\tUSB-C
+# Keyboard description\tMechanical
+# Recommended product uses\tGaming
+# Special features\tBacklit
+# Colour\tRed
+# Number of keys\t98
+# Keyboard backlight colour support\tSingle Color
+# Style\tModern
 
-About this item:
-- Compact 96% Layout: The K98SE mechanical keyboard features a 98-key design that maximizes space efficiency, preserving essential letters, numbers, and function keys. This enables users to conveniently execute tasks in various scenarios.
-- Superior Mechanical Keyboard Experience: The red switch offers quiet, swift typing without noticeable tactile bumps and clicks. Ideal for gamers who prefer a serene atmosphere and rapid key presses. Pre-lubed switches and stabilizers elevate key feel and performance.
-- Classic Blue Backlight: The K98SE LED backlit keyboard offers 15 lighting effects with adjustable brightness and speed. The side light strip design enhances the lighting experience, adding a touch of fashion to the keyboard. Note: The light colour cannot be changed.
-- Software Support: K98SE wired keyboard software offers diverse features for customizing and enhancing your keyboard experience. It supports up to five profiles, with each profile allowing distinct key mappings, macro settings, and backlight configurations to cater to your diverse needs. Presently, it only supports Windows.
-- Optimized for Efficiency and Comfort: The K98SE gaming keyboard features double-shot keycaps and a two-stage kickstand, ensuring a premium experience. With full-key anti-ghosting, it eliminates delays, enabling you to enjoy efficient and seamless gaming and typing experiences.
-- Compatibility and After-Sales Service: Compatible with Windows 11/10/8/7/XP and Mac OS. Vista and Linux are only suitable for typing and office use."""
+# About this item:
+# - Compact 96% Layout: The K98SE mechanical keyboard features a 98-key design that maximizes space efficiency, preserving essential letters, numbers, and function keys. This enables users to conveniently execute tasks in various scenarios.
+# - Superior Mechanical Keyboard Experience: The red switch offers quiet, swift typing without noticeable tactile bumps and clicks. Ideal for gamers who prefer a serene atmosphere and rapid key presses. Pre-lubed switches and stabilizers elevate key feel and performance.
+# - Classic Blue Backlight: The K98SE LED backlit keyboard offers 15 lighting effects with adjustable brightness and speed. The side light strip design enhances the lighting experience, adding a touch of fashion to the keyboard. Note: The light colour cannot be changed.
+# - Software Support: K98SE wired keyboard software offers diverse features for customizing and enhancing your keyboard experience. It supports up to five profiles, with each profile allowing distinct key mappings, macro settings, and backlight configurations to cater to your diverse needs. Presently, it only supports Windows.
+# - Optimized for Efficiency and Comfort: The K98SE gaming keyboard features double-shot keycaps and a two-stage kickstand, ensuring a premium experience. With full-key anti-ghosting, it eliminates delays, enabling you to enjoy efficient and seamless gaming and typing experiences.
+# - Compatibility and After-Sales Service: Compatible with Windows 11/10/8/7/XP and Mac OS. Vista and Linux are only suitable for typing and office use."""
 
     data = {
         "model": "gpt-4o-mini",
