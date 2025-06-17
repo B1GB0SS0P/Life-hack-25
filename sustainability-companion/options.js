@@ -1,6 +1,6 @@
 // Restore saved preference
 document.addEventListener('DOMContentLoaded', () => {
-  chrome.storage.sync.get({ preferredMetric: 'carbonScore' }, prefs => {
+  chrome.storage.sync.get({ preferredMetric: 'environmentalScore' }, prefs => {
     document.getElementById('metric-select').value = prefs.preferredMetric;
   });
 });
