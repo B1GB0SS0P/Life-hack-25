@@ -15,7 +15,7 @@ def get_assessment_from_openai(api_key, product_id):
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
     # ================================================================
-    # NEW DETAILED PROMPT with ESG Framework
+    # PROMPT IS ALREADY UPDATED TO REQUEST A SCORE OUT OF 100
     # ================================================================
     content = (
         "You are an expert ESG (Environmental, Social, Governance) assessor. Analyze the product from the given URL "
@@ -41,13 +41,13 @@ def get_assessment_from_openai(api_key, product_id):
         "- Local Economic Impact: {score/10}\n"
         "- Supply Chain Resilience: {score/10}\n"
         "- Innovation/R&D: {score/10}\n\n"
-        "After the scores, list up to 3 sustainable alternative products as a JSON-compatible list of objects, starting with 'ALT:'.\n"
-        'Example: ALT: [{"product_name": "<item>", "product_score": <score>, "reco_reason": "<reason>"}]'
+        "After the scores, list up to 3 sustainable alternative products as a JSON-compatible list of objects, starting with 'ALT:'. "
+        "The product_score for these alternatives must be out of 100.\n"
+        'Example: ALT: [{"product_name": "<item>", "product_score": 90, "reco_reason": "<reason>"}]'
     )
 
     document_url = f"https://www.amazon.com/dp/{product_id}"
     query = f"Assess the product at the following URL: {document_url}"
-
     query = """KEMOVE K98SE Mechanical Gaming Keyboard, 98 Keys LED Backlit Programmable, 96% Wired Computer Keyboard with Double Sound Dampening Foam, Pre-lubed Red Switch
 Brand: KEMOVE
 4.2 out of 5 stars    144 ratings
@@ -75,7 +75,6 @@ About this item:
 - Optimized for Efficiency and Comfort: The K98SE gaming keyboard features double-shot keycaps and a two-stage kickstand, ensuring a premium experience. With full-key anti-ghosting, it eliminates delays, enabling you to enjoy efficient and seamless gaming and typing experiences.
 - Compatibility and After-Sales Service: Compatible with Windows 11/10/8/7/XP and Mac OS. Vista and Linux are only suitable for typing and office use."""
 
-
     data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "system", "content": content}, {"role": "user", "content": query}],
@@ -99,30 +98,35 @@ About this item:
         # --- PARSING LOGIC FOR DETAILED SCORES ---
         def parse_score(pattern, text, default=0):
             match = re.search(pattern, text, re.IGNORECASE)
-            return int(match.group(1)) if match else default
+            # Handle cases like "score/10" by splitting and taking the first number
+            if match:
+                score_str = match.group(1).split('/')[0].strip()
+                return int(score_str)
+            return default
+
 
         # Environmental
-        ghg_emissions = parse_score(r"Greenhouse Gas Emissions:\s*(\d+)", assessment_text)
-        material_sustainability = parse_score(r"Material Sustainability:\s*(\d+)", assessment_text)
-        water_usage = parse_score(r"Water Usage:\s*(\d+)", assessment_text)
-        packaging_impact = parse_score(r"Packaging impact:\s*(\d+)", assessment_text)
-        end_of_life = parse_score(r"End of Life Disposal:\s*(\d+)", assessment_text)
+        ghg_emissions = parse_score(r"Greenhouse Gas Emissions:\s*([\d\.]+)", assessment_text)
+        material_sustainability = parse_score(r"Material Sustainability:\s*([\d\.]+)", assessment_text)
+        water_usage = parse_score(r"Water Usage:\s*([\d\.]+)", assessment_text)
+        packaging_impact = parse_score(r"Packaging impact:\s*([\d\.]+)", assessment_text)
+        end_of_life = parse_score(r"End of Life Disposal:\s*([\d\.]+)", assessment_text)
 
         # Social
         fair_labour_match = re.search(r"Fair Labour \(yes/no\):\s*(yes|no)", assessment_text, re.IGNORECASE)
         fair_labour = 10 if fair_labour_match and fair_labour_match.group(1).lower() == 'yes' else 1
-        worker_safety = parse_score(r"Worker Safety:\s*(\d+)", assessment_text)
-        fair_trade = parse_score(r"Fair Trade:\s*(\d+)", assessment_text)
-        local_sourcing = parse_score(r"Local Sourcing:\s*(\d+)", assessment_text)
-        community_impact = parse_score(r"Community Impact:\s*(\d+)", assessment_text)
-        user_health = parse_score(r"User Health and Safety:\s*(\d+)", assessment_text)
+        worker_safety = parse_score(r"Worker Safety:\s*([\d\.]+)", assessment_text)
+        fair_trade = parse_score(r"Fair Trade:\s*([\d\.]+)", assessment_text)
+        local_sourcing = parse_score(r"Local Sourcing:\s*([\d\.]+)", assessment_text)
+        community_impact = parse_score(r"Community Impact:\s*([\d\.]+)", assessment_text)
+        user_health = parse_score(r"User Health and Safety:\s*([\d\.]+)", assessment_text)
 
         # Governance
-        affordability = parse_score(r"Affordability/Value:\s*(\d+)", assessment_text)
-        circular_economy = parse_score(r"Circular Economy Fit:\s*(\d+)", assessment_text)
-        local_economic_impact = parse_score(r"Local Economic Impact:\s*(\d+)", assessment_text)
-        supply_chain_resilience = parse_score(r"Supply Chain Resilience:\s*(\d+)", assessment_text)
-        innovation = parse_score(r"Innovation/R&D:\s*(\d+)", assessment_text)
+        affordability = parse_score(r"Affordability/Value:\s*([\d\.]+)", assessment_text)
+        circular_economy = parse_score(r"Circular Economy Fit:\s*([\d\.]+)", assessment_text)
+        local_economic_impact = parse_score(r"Local Economic Impact:\s*([\d\.]+)", assessment_text)
+        supply_chain_resilience = parse_score(r"Supply Chain Resilience:\s*([\d\.]+)", assessment_text)
+        innovation = parse_score(r"Innovation/R&D:\s*([\d\.]+)", assessment_text)
         
         # --- CALCULATE WEIGHTED SCORES (REBASED TO 100) ---
         environmental_score = (
@@ -157,13 +161,19 @@ About this item:
             try:
                 reco_json_str = alt_match.group(1)
                 recommendations = json.loads(reco_json_str)
+                
+                # ================================================================
+                # NEW: Post-processing to ensure score is out of 100
+                # ================================================================
+                for reco in recommendations:
+                    if 'product_score' in reco and isinstance(reco['product_score'], (int, float)) and reco['product_score'] <= 10:
+                        reco['product_score'] *= 10
+
             except json.JSONDecodeError as e:
                 print(f"Error decoding recommendations JSON: {e}")
                 recommendations = []
-
-        # ================================================================
-        # UPDATED: Simplified final JSON object
-        # ================================================================
+        
+        # --- BUILD THE FINAL JSON OBJECT ---
         formatted_data = {
             "upc": product_id,
             "environmentalScore": round(environmental_score),
