@@ -36,8 +36,8 @@ function waitForElement(selector, timeout = 10000) {
   }
 
   // 2) Load user preference
-  const { preferredMetric = 'carbonScore' } = await new Promise(res =>
-    chrome.storage.sync.get({ preferredMetric: 'carbonScore' }, res)
+  const { preferredMetric = 'environmentalScore' } = await new Promise(res =>
+    chrome.storage.sync.get({ preferredMetric: 'environmentalScore' }, res)
   );
   console.log('♻️ [Eco] preferredMetric =', preferredMetric);
 
@@ -79,12 +79,12 @@ function waitForElement(selector, timeout = 10000) {
       console.log('✅ [Eco] Score data:', resp.data);
 
       // 6) Compute grade & inject UI
-      const { carbonScore, materialScore, endOfLifeScore } = resp.data;
-      const avg = (carbonScore + materialScore + endOfLifeScore) / 3;
+      const { environmentalScore, socialScore, governanceScore, recommendations } = resp.data;
+      const avg = (environmentalScore + socialScore + governanceScore) / 3;
       updateGradePill(`Eco Score: ${computeGrade(avg)}`);
-
+      
       renderDetailPanel(resp.data, preferredMetric);
-      findAndRenderAlternatives(resp.data, preferredMetric);
+      findAndRenderAlternatives(recommendations, avg);
     }
   );
 })();
@@ -145,20 +145,21 @@ function renderDetailPanel(data, focus) {
     <button id="eco-toggle">Show Eco-Scores ▼</button>
     <div id="eco-body" hidden>
       <div id="gauges" class="gauges">
-        ${['carbon','material','endOfLife'].map(key =>
+        ${['environmental','social','governance'].map(key =>
           gaugeHTML(key, data[`${key}Score`], `${key}Score` === focus)
         ).join('')}
       </div>
       <small class="meta">
         Source: ${data.source} • Updated: ${new Date(data.fetchedAt).toLocaleDateString()}
       </small>
-      <div>
+
+      <div id="eco-alts"></div>
+    </div>`;
+    `      <div>
         <label>
           <input type="checkbox" id="compare-toggle"> Compare alternatives
         </label>
-      </div>
-      <div id="eco-alts"></div>
-    </div>`;
+      </div>`
   document.body.appendChild(panel);
 
   document.getElementById('eco-toggle').addEventListener('click', () => {
@@ -178,9 +179,9 @@ function renderDetailPanel(data, focus) {
     }
   });
 
-  injectInfoIcon('Carbon', 'The Scoring system involves a mixture of Carbon footprint and some other stuff')
-  injectInfoIcon('Material', 'The Scoring system involves a mixture of material usage and some other stuff')
-  injectInfoIcon('End', 'The Scoring system involves a mixture of death and some other stuff')
+  injectInfoIcon('Environment', 'The Scoring system involves a mixture of Carbon footprint and some other stuff')
+  injectInfoIcon('Social', 'The Scoring system involves a mixture of material usage and some other stuff')
+  injectInfoIcon('Governance', 'The Scoring system involves a mixture of death and some other stuff')
 }
 
 // Render individual gauge
@@ -205,7 +206,7 @@ function gaugeHTML(name, value, highlight) {
         </text>
       </svg>
       <div class="g-label">
-        ${name.charAt(0).toUpperCase() + name.slice(1)}: ${value}/100
+        ${name.charAt(0).toUpperCase() + name.slice(1)} Score
       </div>
     </div>`;
 }
@@ -244,41 +245,29 @@ function injectInfoIcon(labelText, tooltipText) {
 
 
 // Alternatives section
-async function findAndRenderAlternatives(mainData, focus) {
-  const altAsins = [...new Set(
-    Array.from(document.querySelectorAll('[data-asin]'))
-      .map(el => el.getAttribute('data-asin'))
-      .filter(a => a && a !== mainData.upc)
-  )].slice(0,3);
+async function findAndRenderAlternatives(mainData, avg) {
+  console.log(mainData)
 
   const container = document.getElementById('eco-alts');
-  container.innerHTML = '<h5>Alternatives</h5>';
+  container.innerHTML = '<h5>Recommendations</h5>';
 
-  for (let asin of altAsins) {
+  for (let data of mainData) {
     const wrap = document.createElement('div');
     wrap.className = 'alt-skel';
     wrap.innerHTML = `<div class="skel-line short"></div>`;
     container.appendChild(wrap);
-
-    chrome.runtime.sendMessage({ action: 'fetchScore', upc: asin }, resp => {
-      if (!resp.success) {
-        wrap.textContent = 'Error loading alt';
-        return;
-      }
-      const d = resp.data;
-      const delta = Math.round(((mainData[focus] - d[focus]) / mainData[focus]) * 100);
-      wrap.className = 'alt-item';
-      wrap.innerHTML = `
-        <div><strong>${delta >= 0 ? '-' : ''}${delta}%</strong> vs this</div>
-        <button class="swap-btn" data-asin="${asin}">Swap</button>`;
-      wrap.querySelector('.swap-btn').style.display = 'none';
-    });
+    const delta = Math.round((data['product_score'] - avg / avg) * 100);
+    wrap.className = 'alt-item';
+    wrap.innerHTML = `
+      <div>${data['product_name']}: <strong>${delta >= 0 ? '-' : ''}${delta}%</strong> vs this</div>
+      <button class="swap-btn" >View Reason</button>
+      <div class="reason-text" style="display: none; margin-top: 5px; color: #555;">${data['reco_reason']}</div>`;
   }
 
-  document.getElementById('compare-toggle').addEventListener('change', e => {
-    document.querySelectorAll('.alt-item .swap-btn')
-      .forEach(btn => {
-        btn.style.display = e.target.checked ? 'inline-block' : 'none';
-      });
+  container.addEventListener('click', e => {
+    if (e.target.classList.contains('swap-btn')) {
+      const reasonDiv = e.target.nextElementSibling;
+      reasonDiv.style.display = reasonDiv.style.display === 'none' ? 'block' : 'none';
+    }
   });
 }
