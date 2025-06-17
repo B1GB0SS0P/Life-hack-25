@@ -12,6 +12,7 @@ This repository contains three main components to facilitate sustainability-driv
 
 * **Python 3.8+** and `pip`
 * **Node.js 14+** and `npm`
+* **Docker 28.1.1** (exact tested version. Other may work)
 * **Google Chrome** (for the extension)
 
 ---
