@@ -1,19 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Extension Options</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sustainability Companion Settings</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 0 20px;
+      color: #333;
+      background: #f9f9f9;
+      line-height: 1.5;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #2c7a7b;
+    }
+
+    section {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    }
+
+    section h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #276749;
+      font-weight: 600;
+      border-bottom: 2px solid #276749;
+      padding-bottom: 6px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      padding-left: 15px;
+      position: relative;
+      font-size: 15px;
+      color: #444;
+    }
+
+    li::before {
+      content: "•";
+      color: #38a169;
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: bold;
+    }
+
+    li span.percentage {
+      font-weight: 700;
+      color: #2f855a;
+      margin-left: 6px;
+    }
+
+    li span.note {
+      font-style: italic;
+      color: #718096;
+      display: block;
+      margin-left: 21px;
+      margin-top: 2px;
+      font-size: 13px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #2c7a7b;
+    }
+
+    select {
+      font-size: 16px;
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: 1px solid #cbd5e0;
+      background: white;
+      width: 100%;
+      max-width: 250px;
+      cursor: pointer;
+      margin-top: 4px;
+      color: #2c7a7b;
+      transition: border-color 0.2s ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #38a169;
+      box-shadow: 0 0 0 3px rgb(72 187 120 / 0.3);
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #38a169;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 250px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2f855a;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 15px 10px;
+      }
+
+      section {
+        padding: 15px 15px;
+      }
+
+      button, select {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h3>Sustainability Companion Settings</h3>
-  <label>
+  <h2>Sustainability Companion Settings</h2>
+
+  <section>
+    <h3>Introduction</h3>
+    <p>This page introduces all of the metrics that are used along with the associated weightage that is used for scoring.</p>
+    <p>Individual scores are ranked over 10, where 1 is worst score, 10 is best score. The total for each section is rebased over 100.</p>
+  </section>
+
+  <section>
+    <h3>Environmental Score</h3>
+    <ul>
+      <li>Greenhouse Gas Emissions <span class="percentage">[35%]</span>
+        <span class="note">Total GHG Emissions</span>
+      </li>
+      <li>Material Sustainability <span class="percentage">[15%]</span>
+        <span class="note">How sustainable each material is</span>
+      </li>
+      <li>Water Usage <span class="percentage">[10%]</span>
+        <span class="note">Total amount of water used to produce the product</span>
+      </li>
+      <li>Packaging Impact <span class="percentage">[20%]</span>
+          <span class="note">Total sustainability of the packaging</span>
+      </li>
+      <li>End of Life Disposal <span class="percentage">[20%]</span>
+          <span class="note">How the product is disposed</span>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>Social Score</h3>
+    <ul>
+      <li>Fair Labour <span class="percentage">[10%]</span>
+        <span class="note">How many workers earn living wage</span>
+      </li>
+      <li>Worker Safety <span class="percentage">[10%]</span>
+        <span class="note">Number of Incidents / Health Policies</span>
+      </li>
+      <li>Fair Trade <span class="percentage">[20%]</span>
+        <span class="note">Is product certified</span>
+      </li>
+      <li>Local Sourcing <span class="percentage">[20%]</span>
+        <span class="note">Amount of Materials sourced locally</span>
+      </li>
+      <li>Community Impact <span class="percentage">[20%]</span>
+        <span class="note">Number of Donations / community projects per product</span>
+      </li>
+      <li>User Health and Safety <span class="percentage">[20%]</span>
+        <span class="note">Is Product free of harmful side effects</span>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>Governance Score</h3>
+    <ul>
+      <li>Affordability / Value <span class="percentage">[20%]</span>
+        <span class="note">Cost per use / cost over lifespan</span>
+      </li>
+      <li>Circular Economy Fit <span class="percentage">[25%]</span>
+        <span class="note">% of product/materials reusable/remanufacturable</span>
+      </li>
+      <li>Local Economic Impact <span class="percentage">[30%]</span>
+        <span class="note">Local job creation or SME partnerships</span>
+      </li>
+      <li>Supply Chain Resilience <span class="percentage">[15%]</span>
+        <span class="note">Supplier diversification</span>
+      </li>
+      <li>Innovation / R&D <span class="percentage">[10%]</span>
+        <span class="note">Investment in sustainable design or tech</span>
+      </li>
+    </ul>
+  </section>
+
+  <label for="metric-select">
     Preferred metric:
-    <select id="metric-select">
+    <select id="metric-select" name="metric-select">
       <option value="environmentalScore">Environmental</option>
       <option value="socialScore">Social</option>
-      <option value="governanceScore">Goverance</option>
+      <option value="governanceScore">Governance</option>
     </select>
   </label>
+
   <button id="save-btn">Save</button>
 
   <script src="options.js"></script>

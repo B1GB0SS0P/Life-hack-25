@@ -23,7 +23,7 @@ function waitForElement(selector, timeout = 10000) {
 }
 
 // Entry point
-;(async function() {
+; (async function () {
   console.log('♻️ [Eco] Starting contentScript');
 
   // 1) Wait for the <body> to exist
@@ -64,7 +64,7 @@ function waitForElement(selector, timeout = 10000) {
 
   // 4) Show skeleton & placeholder grade
   injectSkeleton();
-  
+
 
   // 5) Fetch the scores
   chrome.runtime.sendMessage(
@@ -81,7 +81,7 @@ function waitForElement(selector, timeout = 10000) {
       // 6) Compute grade & inject UI
       const { environmentalScore, socialScore, governanceScore, recommendations } = resp.data;
       const avg = (environmentalScore + socialScore + governanceScore) / 3;
-      
+
       renderDetailPanel(resp.data, preferredMetric, avg)
       findAndRenderAlternatives(recommendations, avg);
     }
@@ -111,7 +111,7 @@ function removeSkeleton() {
 // Grade pill overlay on image
 function injectGradePill(text) {
   if (document.getElementById('eco-grade-pill')) return;
-  
+
   const container = document.querySelector('#eco-detail') || document.body;
 
   const pill = document.createElement('div');
@@ -144,7 +144,7 @@ function updateGradePill(letter) {
   const colored = colorMap[lastChar];
 
   const baseText = trimmed.slice(0, -1);
-  
+
   pill.innerHTML = `${baseText}&nbsp;<span style="color: ${colored}; font-size: 20px"> ${lastChar}</span>`;
 }
 
@@ -166,9 +166,9 @@ function renderDetailPanel(data, focus, avg) {
     <button id="eco-toggle">Show Eco-Scores ▼</button>
     <div id="eco-body" hidden>
       <div id="gauges" class="gauges">
-        ${['environmental','social','governance'].map(key =>
-          gaugeHTML(key, data[`${key}Score`], `${key}Score` === focus)
-        ).join('')}
+        ${['environmental', 'social', 'governance'].map(key =>
+    gaugeHTML(key, data[`${key}Score`], `${key}Score` === focus)
+  ).join('')}
       </div>
       <small class="meta">
         Source: ${data.source} • Updated: ${new Date(data.fetchedAt).toLocaleDateString()}
@@ -176,7 +176,7 @@ function renderDetailPanel(data, focus, avg) {
 
       <div id="eco-alts"></div>
     </div>`;
-    `      <div>
+  `      <div>
         <label>
           <input type="checkbox" id="compare-toggle"> Compare alternatives
         </label>
@@ -200,9 +200,9 @@ function renderDetailPanel(data, focus, avg) {
     }
   });
 
-  injectInfoIcon('Environment', 'The Scoring system involves a mixture of Carbon footprint and some other stuff')
-  injectInfoIcon('Social', 'The Scoring system involves a mixture of material usage and some other stuff')
-  injectInfoIcon('Governance', 'The Scoring system involves a mixture of death and some other stuff')
+  injectInfoIcon('Environment', 'The scoring considers the impact the product has to the environment. Go to options for more info.')
+  injectInfoIcon('Social', 'The scoring considers the social impact of the product such as welfare of workers. Go to options for more info.')
+  injectInfoIcon('Governance', 'The scoring considers the impact the product has towards the Economy. Go to options for more info.')
   injectGradePill('…')
   updateGradePill(`Eco Score: ${computeGrade(avg)}`)
 
@@ -213,7 +213,7 @@ function gaugeHTML(name, value, highlight) {
   const colorClass = highlight ? 'focus' : '';
   const r = 40;
   const circumference = 2 * Math.PI * r;
-  const offset = circumference * (1 - value/100);
+  const offset = circumference * (1 - value / 100);
   return `
     <div class="graph">
       <div class="gauge ${colorClass}">
