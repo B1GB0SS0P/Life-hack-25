@@ -237,7 +237,7 @@
   border-radius: 6px;
   padding: 6px;
   position: absolute;
-  z-index: 10;
+  z-index: 10000001;
   top: 20px;
   right: 120%;
   transition: opacity 0.3s ease;
