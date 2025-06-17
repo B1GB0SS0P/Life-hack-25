@@ -2,7 +2,7 @@
 
 This repository contains three main components to facilitate sustainability-driven product search and comparison:
 
-1. **Python Service** (run.py)
+1. **Python Service** (app.py)
 2. **sustainability-api** (Node.js API)
 3. **sustainability-companion** (Chrome Extension)
 
@@ -16,9 +16,9 @@ This repository contains three main components to facilitate sustainability-driv
 
 ---
 
-## 1. Python Service
+## 1. Python Service (search_eng)
 
-This service lives at the root of the `search_eng` folder and is started via `run.py`.
+This service lives at the root of the `search_eng` folder and is started via `app.py`.
 
 ### Setup
 
@@ -32,26 +32,24 @@ This service lives at the root of the `search_eng` folder and is started via `ru
    * macOS/Linux: `source venv/bin/activate`
    * Windows: `venv\Scripts\activate`
 3. **Install dependencies**
-   Ensure you have a `requirements.txt` listing all Python packages. If you don’t yet have one, generate it after installing your packages:
-
-   ```bash
-   pip install <your-dependencies>
-   pip freeze > requirements.txt
-   ```
-
-   Then install from it:
-
    ```bash
    pip install -r requirements.txt
    ```
-
+4. **Setup docker images** (Windows)
+    ```
+    .\setup_images.bat
+    ```
+5. **Start search engine** (Windows)
+    ```
+    .\run_eng.bat
+    ```
 ### Running
 
 ```bash
-python run.py
+python app.py
 ```
 
-The service will start on the configured host/port (check `run.py` or your env settings).
+The service will start on the configured host/port (check `app.py`).
 
 ---
 
