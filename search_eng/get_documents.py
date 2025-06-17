@@ -1,25 +1,30 @@
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 import json
 
 
 def get_documents(product_id, top_n=1, get_recommendations=False):
-    """_summary_
+    """
+    Retrieves text content from the top search results of a SearxNG search query.
 
     Args:
-        product_id (str): Either product name or id
-        top_n (int, optional): The top n results from search to add to query. Defaults to 1.
-        get_recommendations (bool, optional): Whether to get documents for recommendations. Defaults to False.
+        product_id (str): A product name or ID used in the search query.
+        top_n (int, optional): Number of top search results to retrieve. Defaults to 1.
+        get_recommendations (bool, optional): If True, modifies the query to search for environmentally 
+                                              friendly alternatives. Defaults to False.
 
     Returns:
-        _type_: _description_
+        tuple: A tuple of three lists:
+            - documents (list): URLs of retrieved documents.
+            - titles (list): Titles of the search results.
+            - txt (list): Extracted visible text from each URL.
     """
-    if get_recommendations:
-        additional_q = "environmentally friendly alternatives to the "
-    else:
-        additional_q = "Amazon UPC "
+    # Choose the search prefix based on context
+    query_prefix = "environmentally friendly alternatives to the " if get_recommendations else "Amazon UPC "
+
+    # Search query parameters
     params = {
-        "q": additional_q + f"{product_id}",  # query to search
+        "q": query_prefix + str(product_id),
         "format": "json",
         "language": "en",
     }
@@ -29,34 +34,28 @@ def get_documents(product_id, top_n=1, get_recommendations=False):
         "Accept": "application/json",
     }
 
-    url = "http://localhost:8080/search"
+    search_url = "http://localhost:8080/search"
 
-    # top_n = top_n
+    titles = []
+    documents = []
+    txt = []
 
     try:
-        titles = []
-        documents = []
-        # Make the POST request
-        response = requests.post(
-            url, data=params, headers=headers, timeout=10
-        )  # Changed to requests.post() and 'data'
+        # Send POST request to SearxNG instance
+        response = requests.post(search_url, data=params, headers=headers, timeout=10)
         print(f"Status code: {response.status_code}")
+
         if response.status_code == 200:
-            if response.headers.get("Content-Type", "").startswith("application/json"):
+            content_type = response.headers.get("Content-Type", "")
+            if content_type.startswith("application/json"):
                 data = response.json()
-                if data.get("results"):
-                    for result in data["results"][:top_n]:
-                        # print(f"Title: {result.get('title', 'N/A')}")
-                        titles.append(result.get("title", "N/A"))
-                        documents.append(result.get("url", "N/A"))
-                        # print(f"URL: {result.get('url', 'N/A')}")
-                        # print(f"Content: {result.get('content', 'N/A')[:150]}...\n")
-                        # print(f"Content length: {len(result.get('content', 'N/A').split())}\n")
-                else:
-                    print("No results found in the JSON response.")
-                    print(json.dumps(data, indent=2))
+
+                # Extract top N titles and URLs
+                for result in data.get("results", [])[:top_n]:
+                    titles.append(result.get("title", "N/A"))
+                    documents.append(result.get("url", "N/A"))
             else:
-                print("Non-JSON response received:")
+                print("Expected JSON but received:")
                 print(response.text[:500])
         else:
             print(f"Error: Received status code {response.status_code}")
@@ -75,24 +74,31 @@ def get_documents(product_id, top_n=1, get_recommendations=False):
         print("Response content (might not be valid JSON):")
         print(response.text)
 
-    txt = []
-    for doc in documents:
+    # Fetch and extract readable text from each URL
+    for url in documents:
+        try:
+            page_response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+            soup = BeautifulSoup(page_response.text, "html.parser")
 
-        # Step 3: Fetch the web page content
-        page_response = requests.get(doc, headers={"User-Agent": "Mozilla/5.0"})
-        soup = BeautifulSoup(page_response.text, "html.parser")
+            # Remove non-visible content
+            for tag in soup(["script", "style", "noscript"]):
+                tag.extract()
 
-        # Step 4: Extract visible text content
-        # You can refine this by removing nav/footers, scripts, etc.
-        for script in soup(["script", "style", "noscript"]):
-            script.extract()
+            # Extract and clean visible text
+            text = soup.get_text(separator="\n", strip=True)
+            txt.append(text)
 
-        text = soup.get_text(separator="\n", strip=True)
-        txt.append(text)
-        # print("\n--- Extracted Text ---\n")
-        # print(text[:3000])
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to retrieve or parse content from {url}: {e}")
+            txt.append("")
+
     return documents, titles, txt
 
 
 if __name__ == "__main__":
+    # Example usage (uncomment for testing)
+    # docs, titles, texts = get_documents("042100005264", top_n=2)
+    # print(docs)
+    # print(titles)
+    # print(texts[0][:1000])
     pass
